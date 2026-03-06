@@ -36,4 +36,5 @@ public class StudentInfo {
 
     @Column(name = "date_of_birth")
     private final LocalDate dateOfBirth;
+    
 }

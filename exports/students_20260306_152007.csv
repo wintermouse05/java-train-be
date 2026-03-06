@@ -1,0 +1,4 @@
+StudentID,StudentName,StudentCode,Address,AverageScore,DateOfBirth
+1,Nguyễn Văn A,SV001,"123 Đường ABC, Quận 1, TP.HCM",8.5,2000-01-15
+2,Trần Thị B,SV002,"456 Đường XYZ, Quận 2, TP.HCM",9.0,2001-03-20
+3,Lê Văn C,SV003,"789 Đường DEF, Quận 3, TP.HCM",7.8,1999-07-10

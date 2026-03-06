@@ -67,10 +67,10 @@ public class AuthService {
 
         // Tạo user mới (immutable entity)
         User user = new User(request.getUserName(), passwordEncoder.encode(request.getPassword()));
-        userDao.insert(user);
+        User savedUser = userDao.insert(user).getEntity();
 
-        // Trả về response
-        return new RegisterResponseDto(user.getUserId(), user.getUserName());
+        // Trả về response (lấy từ savedUser vì entity immutable)
+        return new RegisterResponseDto(savedUser.getUserId(), savedUser.getUserName());
     }
 
     /**

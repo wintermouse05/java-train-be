@@ -5,10 +5,10 @@ services:
     image: mysql:8
     container_name: student-mysql
     environment:
-      MYSQL_ROOT_PASSWORD:        # Fill in your MySQL root password
+      MYSQL_ROOT_PASSWORD: changeme
       MYSQL_DATABASE: student_db
-      MYSQL_USER:                  # Fill in your MySQL username
-      MYSQL_PASSWORD:              # Fill in your MySQL password
+      MYSQL_USER: mysql-db
+      MYSQL_PASSWORD: changeme         # Fill in your MySQL password
       TZ: Asia/Ho_Chi_Minh
     ports:
       - "3306:3306"
