@@ -57,7 +57,7 @@ public class SecurityConfig {
                             .jwt(jwt -> jwt.decoder(jwtDecoder()))
                     )
                     .authorizeHttpRequests(authz -> authz
-                            .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                            .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh").permitAll()
                             .requestMatchers("/api/batch/**").permitAll()
                             .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
                             .anyRequest().authenticated()

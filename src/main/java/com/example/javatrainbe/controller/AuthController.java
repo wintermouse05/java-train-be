@@ -46,4 +46,19 @@ public class AuthController {
         RegisterResponseDto response = authService.register(registerRequest);
         return ResponseEntity.ok(ApiResponse.success("Đăng ký thành công", response));
     }
+
+    /**
+     * API refresh token
+     */
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh token", description = "Tạo token mới từ token cũ (cho phép token hết hạn gần đây)")
+    public ResponseEntity<ApiResponse<LoginResponseDto>> refreshToken(
+            @RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Token không hợp lệ");
+        }
+        String token = authHeader.substring(7);
+        LoginResponseDto response = authService.refreshToken(token);
+        return ResponseEntity.ok(ApiResponse.success("Refresh token thành công", response));
+    }
 }

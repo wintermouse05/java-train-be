@@ -127,4 +127,36 @@ public class JwtService {
     public long getExpiration() {
         return jwtExpiration;
     }
+
+    /**
+     * Refresh token: verify chữ ký, cho phép token hết hạn trong vòng 7 ngày.
+     * Trả về token mới nếu hợp lệ, throw RuntimeException nếu không.
+     */
+    public String refreshToken(String token) {
+        try {
+            byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+            SecretKey key = new SecretKeySpec(keyBytes, "HmacSHA256");
+            MACVerifier verifier = new MACVerifier(key);
+
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            if (!signedJWT.verify(verifier)) {
+                throw new RuntimeException("Token không hợp lệ");
+            }
+
+            Date expiration = signedJWT.getJWTClaimsSet().getExpirationTime();
+            long maxRefreshWindow = 7L * 24 * 60 * 60 * 1000; // 7 ngày
+            if (expiration != null && System.currentTimeMillis() - expiration.getTime() > maxRefreshWindow) {
+                throw new RuntimeException("Token đã hết hạn quá lâu, vui lòng đăng nhập lại");
+            }
+
+            String username = signedJWT.getJWTClaimsSet().getSubject();
+            Integer userId = signedJWT.getJWTClaimsSet().getIntegerClaim("userId");
+
+            return generateToken(userId, username);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Không thể refresh token", e);
+        }
+    }
 }

@@ -86,4 +86,20 @@ public class AuthService {
     public String getUsernameFromToken(String token) {
         return jwtService.extractUsername(token);
     }
+
+    /**
+     * Refresh token - tạo token mới từ token cũ (cho phép token hết hạn gần đây)
+     */
+    public LoginResponseDto refreshToken(String token) {
+        String newToken = jwtService.refreshToken(token);
+
+        String username = jwtService.extractUsername(newToken);
+        Integer userId = jwtService.extractUserId(newToken);
+
+        long now = System.currentTimeMillis();
+        String loginAt = DateTimeUtils.formatEpochMillis(now);
+        String expiresAt = DateTimeUtils.formatEpochMillis(now + jwtService.getExpiration());
+
+        return new LoginResponseDto(newToken, "Bearer", loginAt, expiresAt, userId, username);
+    }
 }
