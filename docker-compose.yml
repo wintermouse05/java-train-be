@@ -1,34 +1,66 @@
-version: '3.8'
-
 services:
   mysql:
-    image: mysql:8
+    build:
+      context: ./docker/mysql
+      dockerfile: Dockerfile
     container_name: student-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: changeme
-      MYSQL_DATABASE: student_db
-      MYSQL_USER: mysql-db
-      MYSQL_PASSWORD: changeme         # Fill in your MySQL password
-      TZ: Asia/Ho_Chi_Minh
     ports:
       - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "Student@123."
+      MYSQL_DATABASE: "student_db"
+      MYSQL_USER: "student"
+      MYSQL_PASSWORD: "Student@123"
+      TZ: "Asia/Ho_Chi_Minh"
     volumes:
-      - mysql-data:/var/lib/mysql
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      - student_mysql_data:/var/lib/mysql
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "student", "-pStudent@123"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 40s
+
+  student-app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: student-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/app/src
+      - maven-cache:/root/.m2
+      - ./pom.xml:/app/pom.xml
+      - ./exports:/app/exports
+    working_dir: /app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/student_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&connectTimeout=30000&socketTimeout=60000"
+      SPRING_DATASOURCE_USERNAME: "student"
+      SPRING_DATASOURCE_PASSWORD: "Student@123"
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: "com.mysql.cj.jdbc.Driver"
+      SPRING_BATCH_JDBC_INITIALIZE_SCHEMA: "always"
+      SPRING_BATCH_JOB_ENABLED: "false"
+      SPRING_DEVTOOLS_RESTART_ENABLED: "false"
+      SPRING_DEVTOOLS_LIVERELOAD_ENABLED: "false"
+      SPRING_DATASOURCE_HIKARI_INITIALIZATIONFAILTIMEOUT: "120000"
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: "30000"
+      SPRING_DATASOURCE_HIKARI_VALIDATION_TIMEOUT: "5000"
 
   adminer:
-    image: adminer
-    container_name: student-adminer
+    image: adminer:latest
+    container_name: adminer
     ports:
       - "8081:8080"
     depends_on:
       - mysql
+    restart: unless-stopped
 
 volumes:
-  mysql-data:
+  student_mysql_data:
+  maven-cache:
